@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>First Fire — Pretzl</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Spectral:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink:    #121110;   /* warm near-black */
+    --surface:#1A1714;   /* lifted block */
+    --paper:  #F2EDE4;   /* warm off-white */
+    --muted:  #8C857A;   /* warm grey */
+    --faint:  #2A2622;   /* hairlines, borders */
+    --signal: #DA3B2F;   /* Pretzl signal red — the one accent */
+    --ease:   cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    background: var(--ink);
+    color: var(--paper);
+    font-family: 'Space Grotesk', sans-serif;
+    line-height: 1.5;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection { background: var(--signal); color: var(--paper); }
+
+  /* ── PAGE ───────────────────────────────────────────── */
+  #page { opacity: 0; pointer-events: none; transition: opacity 0.6s var(--ease); }
+  #page.live { opacity: 1; pointer-events: auto; }
+
+  .topbar {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 22px clamp(20px, 5vw, 56px);
+    border-bottom: 1px solid var(--faint);
+    font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+  }
+  .topbar .brand { color: var(--signal); font-weight: 600; }
+  .topbar .tag { color: var(--muted); }
+
+  main {
+    max-width: 760px; margin: 0 auto;
+    padding: clamp(48px, 9vw, 96px) clamp(20px, 5vw, 56px) 96px;
+  }
+
+  /* hero */
+  .hero-eyebrow {
+    font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 18px;
+  }
+  .hero-title {
+    font-size: clamp(52px, 12vw, 104px); font-weight: 700;
+    letter-spacing: -0.03em; line-height: 0.9; margin-bottom: 28px;
+  }
+  .hero-sub {
+    font-family: 'Spectral', serif; font-size: clamp(18px, 2.6vw, 23px);
+    line-height: 1.55; color: var(--paper); max-width: 30ch;
+  }
+  .hero-sub em { color: var(--signal); font-style: italic; }
+
+  .rule {
+    height: 1px; background: var(--faint);
+    margin: clamp(40px, 7vw, 64px) 0;
+  }
+  .rule.ignite {
+    background: linear-gradient(to right, var(--signal) 0%, var(--signal) 28%, var(--faint) 28%);
+  }
+
+  /* arc — seen once */
+  .block-label {
+    font-size: 11px; letter-spacing: 0.24em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 22px;
+  }
+  .arc {
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px;
+  }
+  .arc-step .word {
+    font-size: clamp(14px, 1.9vw, 18px); font-weight: 600;
+    letter-spacing: -0.01em; margin-bottom: 6px;
+  }
+  .arc-step .gloss {
+    font-size: 12px; color: var(--muted); line-height: 1.35;
+  }
+  .arc-step:nth-child(5) .word { color: var(--signal); }
+
+  /* the move — the hero object */
+  .move-label {
+    display: flex; align-items: baseline; gap: 12px;
+    margin-bottom: 18px;
+  }
+  .move-label .n {
+    font-size: 11px; letter-spacing: 0.24em; text-transform: uppercase;
+    color: var(--signal); font-weight: 600;
+  }
+  .move-label .t {
+    font-size: 11px; letter-spacing: 0.24em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .prompt {
+    background: var(--surface);
+    border: 1px solid var(--faint);
+    border-left: 2px solid var(--signal);
+    padding: clamp(26px, 4.5vw, 40px);
+    font-family: 'Spectral', serif;
+    font-size: clamp(16px, 2vw, 19px);
+    line-height: 1.72; color: var(--paper);
+  }
+  .prompt p { margin-bottom: 1.1em; }
+  .prompt p:last-child { margin-bottom: 0; }
+  .prompt .said { color: var(--signal); font-style: italic; }
+
+  .move-actions {
+    display: flex; align-items: center; gap: 18px;
+    margin-top: 22px; flex-wrap: wrap;
+  }
+  .copy-btn {
+    background: var(--signal); color: var(--paper);
+    border: none; font-family: inherit; font-weight: 600;
+    font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase;
+    padding: 14px 26px; cursor: pointer;
+    transition: transform 0.2s var(--ease), background 0.2s var(--ease);
+  }
+  .copy-btn:hover { transform: translateY(-1px); }
+  .copy-btn:active { transform: translateY(0); }
+  .copy-btn.done { background: var(--surface); color: var(--signal); box-shadow: inset 0 0 0 1px var(--signal); }
+  .move-note {
+    font-family: 'Spectral', serif; font-style: italic;
+    font-size: 15px; color: var(--muted);
+  }
+
+  /* handoff */
+  .handoff-line {
+    font-family: 'Spectral', serif; font-size: clamp(22px, 4vw, 34px);
+    line-height: 1.35; letter-spacing: -0.01em;
+  }
+  .handoff-line .q { color: var(--signal); }
+  .handoff-foot {
+    margin-top: 18px; font-size: 14px; color: var(--muted); max-width: 46ch;
+    font-family: 'Spectral', serif;
+  }
+
+  footer {
+    border-top: 1px solid var(--faint);
+    padding: 22px clamp(20px, 5vw, 56px);
+    font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--faint); text-align: center;
+  }
+
+  a:focus-visible, button:focus-visible, input:focus-visible {
+    outline: 2px solid var(--signal); outline-offset: 3px;
+  }
+
+  @media (max-width: 560px) {
+    .arc { grid-template-columns: repeat(2, 1fr); gap: 20px 14px; }
+    .arc-step:nth-child(5) { grid-column: 1 / -1; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- PAGE -->
+<div id="page" class="live">
+  <div class="topbar">
+    <span class="brand">Pretzl · First Fire</span>
+    <span class="tag">One move</span>
+  </div>
+
+  <main>
+    <!-- HERO -->
+    <p class="hero-eyebrow">The whole thing</p>
+    <h2 class="hero-title">First Fire</h2>
+    <p class="hero-sub">One move, then the AI takes over. You build a real skill in conversation — then you <em>hand it on</em>.</p>
+
+    <div class="rule ignite"></div>
+
+    <!-- ARC -->
+    <p class="block-label">One move inside a longer pattern</p>
+    <div class="arc">
+      <div class="arc-step"><div class="word">Spark</div><div class="gloss">receive</div></div>
+      <div class="arc-step"><div class="word">Practice</div><div class="gloss">repeat</div></div>
+      <div class="arc-step"><div class="word">Discovery</div><div class="gloss">find your thing</div></div>
+      <div class="arc-step"><div class="word">Application</div><div class="gloss">use it for real</div></div>
+      <div class="arc-step"><div class="word">Fluency</div><div class="gloss">give it away</div></div>
+    </div>
+
+    <div class="rule"></div>
+
+    <!-- THE MOVE -->
+    <div class="move-label">
+      <span class="n">The opening move</span>
+      <span class="t">— paste it into a fresh chat</span>
+    </div>
+    <div class="prompt" id="prompt">
+      <p>You're going to help me build one small AI skill I can actually use — then hand to the person next to me. Don't lecture me, and don't hand me a menu to wade through. Interview me, one question at a time.</p>
+      <p>Start here: of these five — communicate, collaborate, think, create, inspire — which one makes me lean forward? Don't ask where it hurts. Ask which door I want to open. Then go quiet and wait.</p>
+      <p>From my answer, find the smallest real thing worth building. Pull a specific recent moment out of me — something I actually did this week, not a hypothetical. Keep narrowing until the skill is small enough to be useful and concrete enough to test today. One question at a time. If something's missing, ask for one thing, not five.</p>
+      <p>When we've got it, write it so I can paste it straight into a fresh conversation: what it does, what I give it, what it should know to do it well, what it should never do. Then make me run it on something real right now — so I know it works before I trust it.</p>
+      <p>Last thing: once it works, tell me who to hand it to and exactly what to say. <span class="said">"Use this. Break it. Tell me what you find."</span> Then stop.</p>
+    </div>
+    <div class="move-actions">
+      <button class="copy-btn" id="copy-btn">Copy the opening move</button>
+      <span class="move-note">It does the rest. No form, no app.</span>
+    </div>
+
+    <div class="rule"></div>
+
+    <!-- HANDOFF -->
+    <p class="block-label">Then hand it on</p>
+    <p class="handoff-line"><span class="q">"Use this. Break it. Tell me what you find."</span></p>
+    <p class="handoff-foot">That sentence is the whole protocol. The fire spreads because something useful passed between two people — not because anyone was told to pass it.</p>
+  </main>
+
+  <footer>Pretzl · First Fire · 2026</footer>
+</div>
+
+<script>
+  // ── COPY ──
+  const copyBtn = document.getElementById('copy-btn');
+  const promptEl = document.getElementById('prompt');
+
+  function promptText() {
+    return Array.from(promptEl.querySelectorAll('p'))
+      .map(p => p.textContent.trim())
+      .join('\n\n');
+  }
+
+  copyBtn.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(promptText());
+    } catch (e) {
+      const r = document.createRange();
+      r.selectNodeContents(promptEl);
+      const sel = window.getSelection();
+      sel.removeAllRanges(); sel.addRange(r);
+      try { document.execCommand('copy'); } catch (_) {}
+      sel.removeAllRanges();
+    }
+    copyBtn.textContent = 'Copied — now go build it';
+    copyBtn.classList.add('done');
+    setTimeout(() => {
+      copyBtn.textContent = 'Copy the opening move';
+      copyBtn.classList.remove('done');
+    }, 2400);
+  });
+</script>
+</body>
+</html>
